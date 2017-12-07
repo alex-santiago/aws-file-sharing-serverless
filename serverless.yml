@@ -1,0 +1,94 @@
+# Welcome to Serverless!
+service: aws-file-sharing-serverless # NOTE: update this with your service name
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+# you can overwrite defaults here
+  stage: dev
+  region: us-west-2
+  profile: serverless
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource: "arn:aws:s3:::${self:provider.environment.IMG_BUCKET}/*"
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "*"
+
+# you can define service wide environment variables here
+  environment:
+    FILES_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    IMG_BUCKET: ${file(./variables.yml):var.IMG_BUCKET}
+    REGION: ${self:provider.region}
+
+functions:
+  fileupload:
+    handler: api/upload.onsave
+    memorySize: 128
+    description: Upload a file
+    timeout: 3
+    events:
+      - http:
+          path: fileupload
+          method: post
+          cors: true
+
+  filesaveinfo:
+    handler: api/save.saveInfo
+    memorySize: 128
+    description: Save file information
+    timeout: 3
+    events:
+      - http:
+          path: files
+          method: post
+          cors: true
+
+  listfiles:
+    handler: api/list.listAllFiles
+    memorySize: 128
+    description: List all files
+    timeout: 3
+    events:
+      - http:
+          path: files
+          method: get
+          cors: true
+
+# resource list
+resources:
+  Resources:
+    filesUploadSvlsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "fileId"
+            AttributeType: "S"   
+        KeySchema:
+          -
+            AttributeName: "fileId"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.FILES_TABLE}
+    filesUploadSvlsBucket:
+      Type: "AWS::S3::Bucket"
+      Properties:
+        AccessControl: PublicRead
+        BucketName: ${self:provider.environment.IMG_BUCKET}

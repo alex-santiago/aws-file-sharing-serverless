@@ -1,0 +1,3 @@
+# environment variables
+  var:
+    IMG_BUCKET: 'awsfilesharingserverlessvlsbucket'

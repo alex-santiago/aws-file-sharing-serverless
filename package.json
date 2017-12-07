@@ -1,0 +1,29 @@
+{
+  "name": "aws-file-sharing-serverless",
+  "version": "1.0.0",
+  "description": "AWS file sharing service",
+  "main": "index.html",
+  "scripts": {
+    "test": "open website/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-santiago/aws-file-sharing-serverless.git"
+  },
+  "keywords": [
+    "serverless",
+    "aws",
+    "S3",
+    "Lambda"
+  ],
+  "author": "Alexandre Santiago da Silva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alex-santiago/aws-file-sharing-serverless/issues"
+  },
+  "homepage": "https://github.com/alex-santiago/aws-file-sharing-serverless#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "node-fetch": "^1.7.3"
+  }
+}
